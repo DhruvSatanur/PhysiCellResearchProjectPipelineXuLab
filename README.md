@@ -6,4 +6,5 @@ I am going to link to a small research paper I wrote to give it a quick synopsis
 
 Note that all of this uses Python 3.12
 
+Also, please note that all the code written is based on being run locally on my Windows 10 laptop, so I am using a GCC compiler (MSYS2 Compiler) 
 
