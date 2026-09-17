@@ -1,21 +1,18 @@
 #!/usr/bin/env python3
 """
-behavior_metrics.py -- quantitative validation of the tumor-demo replication.
+behavior_metrics.py --> validation of the tumor demo replication...turns each one into a value
 
-The paper's claims are all qualitative ("notice the greatest cycling is on the
-outer periphery"). This turns each one into a number you can put on a slide and
-that a reviewer can check. It also supplies the null test that separates
-"behavior" from "marbles": a chemotaxis index that is ~0 for a random walk and
-clearly negative (inward) when chemotaxis is doing real work.
+null test 4 behavior from marbles, i.e., a chemotaxis index value that is around 0 for a random walk and
+clearly negative (inward) when chemotaxis is doing work.
 
-Checks, and the paper claim each maps to:
-  C1  pressure decreases with radius          paper Fig 11
-  C2  cycle entry increases with radius       supplemental Fig 8 text
-  C3  oxygen-driven spatial asymmetry         supplemental Fig 13 text
-  C4  debris accumulates over the tumor       supplemental Fig 24 text
-  C5  macrophages drift inward (chemotaxis)   supplemental Figs 30, 33-34
-  C6  M1 conversion tracks dead-cell contact  supplemental Figs 39-40
-  C7  cancer population falls after T arrival supplemental Figs 48-50
+Check 4 each of the paper's claims maps to:
+  C1(pressure decreases with radius) --> paper Figure 11
+  C2(cycle entry increases with radius) --> supplemental Figure 8
+  C3(oxygen-driven spatial asymmetry) ---> supplemental Figure 13 
+  C4(debris accumulates over the tumor) ---> supplemental Figure 24 
+  C5(macrophages drift inward: chemotaxis) ---> supplemental Figures 30 & 33 & 34
+  C6(M1 conversion tracks dead-cell contact) ---> supplemental Figures 39 & 40
+  C7(cancer population falls after T arrival) --> supplemental Figures 48 through 50
 
 Usage:
     py -3.12 behavior_metrics.py --output PhysiCell/output --out-dir figs
@@ -30,10 +27,8 @@ try:
 except ImportError:
     sys.exit("pcdl not found. In PowerShell: py -3.12 -m pip install pcdl")
 
-LOW_O2 = np.array([-1.0, -1.0]) / math.sqrt(2.0)   # Dirichlet xmin=ymin=10 corner
+LOW_O2 = np.array([-1.0, -1.0]) / math.sqrt(2.0)   # xmin=ymin=10 corner
 
-
-# ------------------------------------------------------------------ plumbing
 
 def resolve(df, *candidates):
     """pcdl column names drift between versions; fail with a useful list."""
@@ -97,7 +92,7 @@ def trend(x, y, w):
     return float(np.polyfit(x[ok], y[ok], 1, w=np.sqrt(w[ok]))[0])
 
 
-# -------------------------------------------------------------------- checks
+#checks
 
 def c1_c2_radial(frames, res):
     last = peak_frame(frames)
@@ -251,7 +246,7 @@ def population_flatness(frames, res):
         "flat counts here mean the rules file was not loaded")
 
 
-# ---------------------------------------------------------------------- main
+# main
 
 def main():
     ap = argparse.ArgumentParser()
