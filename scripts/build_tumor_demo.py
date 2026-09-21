@@ -40,7 +40,7 @@ def setval(parent, path, value):
     return node
 
 
-# ---------------------------------------------------------------- domain/time
+
 
 def apply_domain(root, d):
     dom = root.find("domain") or die("no <domain> in template")
@@ -67,12 +67,12 @@ def apply_overall(root, o):
         setval(save, "SVG/interval", o["svg_interval"])
 
 
-# ---------------------------------------------------------------- substrates
+
 
 def apply_substrates(root, subs, opts):
     me = root.find("microenvironment_setup") or die("no <microenvironment_setup>")
 
-    # Remove template placeholder substrates; we define ours explicitly.
+    # Remove template placeholder substrates
     for v in me.findall("variable"):
         me.remove(v)
 
@@ -109,7 +109,7 @@ def apply_substrates(root, subs, opts):
            str(opts["track_internalized_substrates_in_each_agent"]).lower())
 
 
-# ---------------------------------------------------------------- cell types
+
 
 def find_def(root, name):
     for cd in root.find("cell_definitions").findall("cell_definition"):
@@ -391,7 +391,7 @@ def apply_user_params(root, up):
         node.text = str(v)
 
 
-# ---------------------------------------------------------------- verify
+
 
 def verify(path, spec):
     """Read the written file back and assert the things that have silently
@@ -458,9 +458,7 @@ def verify(path, spec):
                             f"oxygen->cycle entry rule is active; the rule "
                             f"will be silently overridden")
 
-    # Baseline stages legitimately have no rules, so "enabled" is only required
-    # when the spec actually asks for a ruleset. The inverse matters too: rules
-    # silently active in a stage that should have none would invalidate it.
+
     rs = root.find("cell_rules/rulesets/ruleset")
     if want_rules:
         if rs is None or rs.get("enabled") != "true":
