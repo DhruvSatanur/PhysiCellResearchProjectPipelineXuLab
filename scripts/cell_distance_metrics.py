@@ -44,8 +44,6 @@ import matplotlib.pyplot as plt
 
 
 def _normalize(df, require_real_ids=False, exclude_dead=False):
-    # reset_index() surfaces pcdl's ID index as a column. Without this the ID
-    # lookup below misses and we fall back to positional matching.
     df = df.reset_index()
 
     def pick(cands, default=None, required=True):
@@ -90,9 +88,7 @@ def _coords(d, dims):
     return d[["x", "y"]].values if dims == 2 else d[["x", "y", "z"]].values
 
 
-# ----------------------------------------------------------------------
-# Metric 1: neighbor distances within a radius.
-# ----------------------------------------------------------------------
+
 def neighbor_distances(df, radius, dims=2, exclude_dead=False):
     """For each cell, every other cell within `radius`, with euclidean distance.
 
