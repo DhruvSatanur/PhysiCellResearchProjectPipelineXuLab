@@ -6,23 +6,13 @@ This is the stage the pipeline was missing: sweep_driver.py reduces every run to
 scalars and writes sweep_results.csv + discriminability.csv, but nothing turned
 those into anything you can put in front of a reader.
 
-Three figures, each answering one question:
+Three figures
 
-  fig1_discriminability  Which metrics separate parameter sets relative to seed
-                         noise? This is the project's central claim as a picture.
-                         Bulk and spatial are colored differently; if the spatial
-                         bars sit above the bulk bars, spatial metrics carry
-                         information a calibration could use that bulk does not.
+  fig1_discriminability  
 
-  fig2_bulk_vs_spatial   The same data collapsed to a two-group comparison, with
-                         every metric shown as a point so a single outlier cannot
-                         masquerade as a trend. Use this one in a talk; use fig1
-                         when someone asks which metric specifically.
+  fig2_bulk_vs_spatial   
 
-  fig3_response_curves   For the top metrics, value against each swept parameter,
-                         one point per seed plus the per-set mean. This is how you
-                         check that a high F is a real monotone response and not
-                         one parameter set landing somewhere odd.
+  fig3_response_curves   
 
 It does NOT recompute the F ratios. It reads discriminability.csv so the figure
 can never disagree with the table sweep_driver printed. Run aggregate first.
@@ -46,9 +36,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 
-# Columns sweep_driver writes that describe the run rather than measure it.
-# Anything in sweep_results.csv that is not one of these and not bulk_/spat_
-# prefixed is treated as a swept parameter.
+
 BOOKKEEPING = {
     "run_id", "param_set", "seed", "status", "returncode",
     "wall_seconds", "n_frames", "t_end",
@@ -118,8 +106,7 @@ def swept_params(res):
     cols = [c for c in res.columns
             if c not in BOOKKEEPING
             and not c.startswith(("bulk_", "spat_"))]
-    # A parameter that took one value tells you nothing and would plot as a
-    # single vertical stripe.
+   
     return [c for c in cols if res[c].nunique() > 1]
 
 
@@ -137,7 +124,7 @@ def save(fig, out_dir, name, want_pdf):
     return paths
 
 
-# ---------------------------------------------------------------- figure 1
+
 
 def fig_discriminability(dis, out_dir, top, want_pdf):
     """Horizontal bars, one per metric, sorted by F, colored by family.
@@ -147,7 +134,7 @@ def fig_discriminability(dis, out_dir, top, want_pdf):
     """
     d = dis.sort_values("F", ascending=True)
     if top and len(d) > top:
-        d = d.tail(top)          # tail because ascending, so we keep the largest
+        d = d.tail(top)          
 
     h = max(2.6, 0.34 * len(d) + 1.4)
     fig, ax = plt.subplots(figsize=(7.2, h))
@@ -163,8 +150,7 @@ def fig_discriminability(dis, out_dir, top, want_pdf):
     ax.set_title("Which metrics separate parameter sets above seed noise")
     ax.grid(axis="y", visible=False)
 
-    # F = 1 is the reference: a metric scoring at or below it varies as much
-    # between seeds of one setting as it does between settings.
+
     ax.axvline(1.0, color="#c0392b", lw=1.0, ls="--", zorder=0)
     ax.text(1.0, len(d) - 0.3, "  F = 1: no better than seed noise",
             color="#c0392b", fontsize=8, va="top")
@@ -177,7 +163,7 @@ def fig_discriminability(dis, out_dir, top, want_pdf):
     return save(fig, out_dir, "fig1_discriminability", want_pdf)
 
 
-# ---------------------------------------------------------------- figure 2
+
 
 def fig_bulk_vs_spatial(dis, out_dir, want_pdf):
     """Two groups, every metric plotted, medians marked.
@@ -195,7 +181,7 @@ def fig_bulk_vs_spatial(dis, out_dir, want_pdf):
         return []
 
     fig, ax = plt.subplots(figsize=(4.8, 4.6))
-    rng = np.random.default_rng(0)      # fixed: the figure must not move between runs
+    rng = np.random.default_rng(0)      
 
     for i, (g, vals) in enumerate(zip(groups, data)):
         color = SPAT_COLOR if g == "spatial" else BULK_COLOR
@@ -219,7 +205,7 @@ def fig_bulk_vs_spatial(dis, out_dir, want_pdf):
     return save(fig, out_dir, "fig2_bulk_vs_spatial", want_pdf)
 
 
-# ---------------------------------------------------------------- figure 3
+
 
 def fig_response_curves(res, dis, params, out_dir, top, want_pdf):
     """Metric value against each swept parameter: rows = metrics, cols = params.
@@ -251,8 +237,7 @@ def fig_response_curves(res, dis, params, out_dir, top, want_pdf):
             ax = axes[r][c]
             sub = res[[param, metric]].dropna()
 
-            # Every seed and every other parameter's level shows up here, so the
-            # vertical spread at one x is the combined noise, not just seeds.
+         
             ax.scatter(sub[param], sub[metric], s=20, color=color,
                        alpha=0.45, zorder=2, edgecolor="none")
             g = sub.groupby(param)[metric].mean()
@@ -272,7 +257,7 @@ def fig_response_curves(res, dis, params, out_dir, top, want_pdf):
     return save(fig, out_dir, "fig3_response_curves", want_pdf)
 
 
-# ---------------------------------------------------------------- main
+
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
@@ -316,8 +301,7 @@ def main():
     for p in written:
         print(f"wrote {p}")
 
-    # The headline number, printed so it ends up in the terminal log next to the
-    # figures rather than only inside them.
+    
     med = dis.groupby("kind")["F"].median()
     if {"bulk", "spatial"} <= set(med.index):
         print(f"\nmedian F: bulk {med['bulk']:.2f}, spatial {med['spatial']:.2f}")
