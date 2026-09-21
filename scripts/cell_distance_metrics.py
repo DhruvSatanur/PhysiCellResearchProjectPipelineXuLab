@@ -42,9 +42,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 
-# ----------------------------------------------------------------------
-# Column normalization: make any input look like x, y, z, type, ID.
-# ----------------------------------------------------------------------
+
 def _normalize(df, require_real_ids=False, exclude_dead=False):
     # reset_index() surfaces pcdl's ID index as a column. Without this the ID
     # lookup below misses and we fall back to positional matching.
@@ -126,9 +124,7 @@ def neighbor_distances(df, radius, dims=2, exclude_dead=False):
     })
 
 
-# ----------------------------------------------------------------------
-# Metric 2: local density + niche composition experienced by each cell.
-# ----------------------------------------------------------------------
+
 def local_niche(df, radius, dims=2, exclude_dead=False):
     """Per-cell: neighbor count, local density, and fraction of each nearby type.
 
@@ -171,9 +167,7 @@ def local_niche(df, radius, dims=2, exclude_dead=False):
     return out
 
 
-# ----------------------------------------------------------------------
-# Metric 3: per-cell displacement between two frames.
-# ----------------------------------------------------------------------
+
 def displacement_by_type(df_start, df_end, dims=2):
     """Match the SAME cell ID in two frames and measure how far it moved.
 
@@ -231,9 +225,6 @@ def survival_summary(df_start, df_end):
     }
 
 
-# ----------------------------------------------------------------------
-# Metric 4: displacement from frame 0 across a whole run.
-# ----------------------------------------------------------------------
 def displacement_series(frames, dims=2):
     """Displacement from frame 0 for each later frame, aggregated by start type.
 
@@ -261,9 +252,7 @@ def load_pcdl_series(output_dir):
     return [(m.get_time(), m.get_cell_df().reset_index()) for m in ts.get_mcds_list()]
 
 
-# ----------------------------------------------------------------------
-# Self-test
-# ----------------------------------------------------------------------
+
 def _demo():
     R = 30.0
     rng = np.random.default_rng(0)
@@ -287,10 +276,10 @@ def _demo():
           f"{niche.n_neighbors.mean():.2f}, type columns {fcols}")
     nz = niche.n_neighbors > 0
     assert np.allclose(niche.loc[nz, fcols].sum(axis=1), 1.0), "fractions must sum to 1"
-    # cross-check niche counts against the pair table
+    
     assert niche.n_neighbors.sum() == len(nd)
 
-    # displacement, with a birth, a death, and a transformation
+    # displacement
     f0 = pd.DataFrame({"ID": [1, 2, 3, 4], "x": [0, 0, 0, 0], "y": [0, 0, 0, 0],
                        "z": 0.0, "type": ["cancer", "macrophage", "macrophage", "cancer"]})
     f1 = pd.DataFrame({"ID": [1, 2, 3, 5], "x": [3, 0, 5, 9], "y": [4, 0, 12, 9],
@@ -304,7 +293,7 @@ def _demo():
           f"1 transformed, birth and death correctly excluded")
     print(f"    survival: {survival_summary(f0, f1)}")
 
-    # the silent-corruption guard
+
     no_id = f0.drop(columns=["ID"])
     try:
         displacement_by_type(no_id, f1.drop(columns=["ID"]))
